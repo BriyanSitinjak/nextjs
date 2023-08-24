@@ -1,5 +1,21 @@
+import { prisma } from '@/db'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import React from 'react'
+
+async function createTodo(data: FormData) {
+  "use server"
+
+  // Get title from the Form
+  const title = data.get("title")?.valueOf()
+  if (typeof title !== "string" || title?.length === 0) {
+    throw new Error("Invalid Title")
+  }
+
+  // Add data to the Prisma server
+  await prisma.todo.create({ data: {title, complete: false} })
+  redirect("/")
+}
 
 export default function page() {
   return (
@@ -7,7 +23,7 @@ export default function page() {
       <header className='flex justify-between items-center mb-4'>
         <h1 className='text-2xl'>New</h1>
       </header>
-      <form className='flex gap-2 flex-col'>
+      <form className='flex gap-2 flex-col' action={createTodo}>
         <input 
           type='text'
           name='title'
